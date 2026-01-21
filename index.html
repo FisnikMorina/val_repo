@@ -206,10 +206,136 @@
       #yesBtn{ left:50%; top:45%; }
       #noBtn{ left:50%; top:75%; }
     }
+    .login{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(1000px 700px at 20% 20%, #fff7fb, transparent 60%),
+        radial-gradient(900px 600px at 80% 30%, #f4f7ff, transparent 55%),
+        linear-gradient(135deg, #fff, #fafbff);
+      z-index:10;
+    }
+
+    .login-card{
+      width:min(420px, 100%);
+      background:white;
+      padding:32px;
+      border-radius:22px;
+      box-shadow:0 20px 50px rgba(0,0,0,0.2);
+      text-align:center;
+    }
+
+    .login-card h1{
+      margin-bottom:8px;
+    }
+
+    .login-card p{
+      color:#5b6270;
+      margin-bottom:18px;
+    }
+
+    .login-card input{
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,0.15);
+      font-size:16px;
+      margin-bottom:14px;
+    }
+
+    .login-card button{
+      width:100%;
+      padding:14px;
+      border-radius:999px;
+      border:none;
+      background:linear-gradient(135deg, #ff3b7a, #ff6aa0);
+      color:white;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .error{
+      margin-top:12px;
+      color:#ff3b7a;
+      font-size:14px;
+    }
+    #flowers{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:9;
+}
+
+.flower{
+  position:absolute;
+  width:26px;
+  height:26px;
+  animation: rise 6s ease-out forwards;
+}
+
+.petal{
+  position:absolute;
+  width:14px;
+  height:14px;
+  background:linear-gradient(135deg, #ff6aa0, #ff3b7a);
+  border-radius:50% 50% 50% 0;
+  transform-origin: bottom right;
+}
+
+.petal:nth-child(1){ transform: rotate(0deg) translate(6px); }
+.petal:nth-child(2){ transform: rotate(72deg) translate(6px); }
+.petal:nth-child(3){ transform: rotate(144deg) translate(6px); }
+.petal:nth-child(4){ transform: rotate(216deg) translate(6px); }
+.petal:nth-child(5){ transform: rotate(288deg) translate(6px); }
+
+.center{
+  position:absolute;
+  top:9px;
+  left:9px;
+  width:8px;
+  height:8px;
+  background:#ffd166;
+  border-radius:50%;
+}
+
+@keyframes rise{
+  from{
+    transform: translateY(40vh) scale(0.3);
+    opacity:0;
+  }
+  20%{ opacity:1; }
+  to{
+    transform: translateY(-120vh) scale(1);
+    opacity:0;
+  }
+}
+
+
   </style>
 </head>
+<div id="flowers"></div>
 <body>
-  <div class="hearts" aria-hidden="true" id="hearts"></div>
+    <div class="hearts" aria-hidden="true" id="hearts"></div>
+    <div id="loginScreen" class="login">
+    <div class="login-card">
+      <h1>Enter the secret code</h1>
+      <p>You already know it.</p>
+
+      <input
+        type="password"
+        id="passcode"
+        placeholder="Secret code"
+        autocomplete="off"
+      />
+
+      <button id="loginBtn">Unlock</button>
+      <p id="loginError" class="error"></p>
+    </div>
+  </div>
 
   <main class="card">
     <div class="topline">Elo Love</div>
@@ -226,8 +352,8 @@
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
-      <h2 id="modalTitle">Best decision.</h2>
-      <p id="modalText">Now I owe you a proper plan: snacks, a walk, and something sweet.</p>
+      <h2 id="modalTitle">Best decision you have ever made.</h2>
+      <p id="modalText">Je qelbesire.</p>
       <div class="modal-actions">
         <button class="btn secondary" id="closeBtn" type="button">Close</button>
         <button class="btn primary" id="copyBtn" type="button">Copy message</button>
@@ -236,9 +362,33 @@
   </div>
 
   <script>
+    const SECRET_CODE = "elolove";
+
+    const loginScreen = document.getElementById("loginScreen");
+    const loginBtn = document.getElementById("loginBtn");
+    const passcodeInput = document.getElementById("passcode");
+    const loginError = document.getElementById("loginError");
+
+    loginBtn.addEventListener("click", tryLogin);
+    passcodeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryLogin();
+    });
+
+    function tryLogin(){
+      if (passcodeInput.value === SECRET_CODE){
+        loginScreen.style.display = "none";
+      } else {
+        loginError.textContent = "Wrong code. Try again.";
+        passcodeInput.value = "";
+      }
+    }
+  </script>
+
+  <script>
+    
     // Customize these two lines if you want
-    const YOUR_NAME = ""; // e.g., "Fisnik"
-    const HER_NAME  = ""; // e.g., "Anna"
+    const YOUR_NAME = ""; 
+    const HER_NAME  = "";
 
     const headline = document.getElementById("headline");
     const subline  = document.getElementById("subline");
@@ -311,6 +461,30 @@
       const scale = Math.min(1 + noCount * 0.08, 1.8);
       yesBtn.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
+    function spawnFlowers(count = 30){
+  const container = document.getElementById("flowers");
+
+  for(let i = 0; i < count; i++){
+    const flower = document.createElement("div");
+    flower.className = "flower";
+    flower.style.left = Math.random() * 100 + "%";
+    flower.style.animationDelay = Math.random() * 1.5 + "s";
+
+    for(let j = 0; j < 5; j++){
+      const petal = document.createElement("div");
+      petal.className = "petal";
+      flower.appendChild(petal);
+    }
+
+    const center = document.createElement("div");
+    center.className = "center";
+    flower.appendChild(center);
+
+    container.appendChild(flower);
+
+    setTimeout(() => flower.remove(), 7000);
+  }
+}
 
     // No button dodges on hover and touch
     noBtn.addEventListener("mouseenter", (e) => {
@@ -338,13 +512,10 @@
 
     // Yes opens a modal
     yesBtn.addEventListener("click", () => {
-      const msg = HER_NAME
-        ? `You just made ${YOUR_NAME || "me"} very happy, ${HER_NAME}.`
-        : `You just made ${YOUR_NAME || "me"} very happy.`;
+  spawnFlowers(40);
+  modal.classList.add("open");
+});
 
-      modalText.textContent = `${msg} Let’s plan something simple and nice.`;
-      modal.classList.add("open");
-    });
 
     closeBtn.addEventListener("click", () => modal.classList.remove("open"));
     modal.addEventListener("click", (e) => {
